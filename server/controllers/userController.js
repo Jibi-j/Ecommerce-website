@@ -31,7 +31,7 @@ const register = async (req, res, next) => {
             name,
             email,
             password: hashedPassword,
-            role: role || 'customer' // default role
+            role: role || 'customer' 
         });
 
 
@@ -51,11 +51,11 @@ const register = async (req, res, next) => {
 }
 
 //login
-const login = async(req,res,next)=>{
+const login = async (req, res, next) => {
     try {
-          
-      //input variable store
-        const {email, password} = req.body || {}
+
+        //input variable store
+        const { email, password } = req.body || {}
 
 
         //valid input
@@ -65,92 +65,88 @@ const login = async(req,res,next)=>{
 
         //check if user exists
         const userExists = await User.findOne({ email })
-        if(!userExists) {
+        if (!userExists) {
             return res.status(400).json({ error: "User not found" })
         }
 
         //compare password
-        const passwordMatch =await bcrypt.compare(password,userExists.password)
+        const passwordMatch = await bcrypt.compare(password, userExists.password)
 
-        if(!passwordMatch){
+        if (!passwordMatch) {
             return res.status(400).json({ error: "Invalid password" })
         }
 
         //token creation
-        const token=createToken(userExists._id,'customer')
-        res.cookie('token', token,{
+        const token = createToken(userExists._id, 'customer');  
+        res.cookie('token', token, {
             httpOnly: true,
-            secure: true,
+            secure: true,       
             sameSite: "Strict",
         });
 
-    
+
         const userObject = userExists.toObject()
         delete userObject.password
-        return res.status(200).json({message:"Login successful", userObject})
+        return res.status(200).json({ message: "Login successful", userObject })
 
     } catch (error) {
-         console.log(error)
+        console.log(error)
         res.status(error.status || 500).json({ error: error.message || "Internal server error" })
 
     }
-    }
+}
 
 //profile
-const profile = async(req,res,next)=>{
+const profile = async (req, res, next) => {
     try {
-        const userId=req.user.id
-        
+        const userId = req.user.id
+
         const userData = await User.findById(userId).select("-password")
-        return res.status(200).json({data:userData, message:"Profile retrieved"})
+        return res.status(200).json({ data: userData, message: "Profile retrieved" })
 
     } catch (error) {
-         console.log(error)
-        res.status(error.status || 500).json({error:error.message || "Internal server error" })
+        console.log(error)
+        res.status(error.status || 500).json({ error: error.message || "Internal server error" })
 
     }
-    }
+}
 
 //update profile
-const update = async(req,res,next)=>{
+const update = async (req, res, next) => {
     try {
-        const userId=req.user.id
+        const userId = req.user.id
 
-        const{name,email,password,profilePic} = req.body|| {}
+        const { name, email, password, profilePic } = req.body || {}
 
-        const userData = await User.findByIdAndUpdate(userId,{name,email,password,profilePic},{new:true}).select("-password")
-       
-        return res.status(200).json({data:userData, message:"Profile updated"})
+        const userData = await User.findByIdAndUpdate(userId, { name, email, password, profilePic }, { new: true }).select("-password")
+
+        return res.status(200).json({ data: userData, message: "Profile updated" })
 
     } catch (error) {
-         console.log(error)
-        res.status(error.status || 500).json({error:error.message || "Internal server error" })
+        console.log(error)
+        res.status(error.status || 500).json({ error: error.message || "Internal server error" })
 
-    }
-    }
-
-
-
-
-//logout
-const logout = async(req,res,next)=>{
-    try {
-         res.clearCookie("token")
-         res.status(200).json({
-            success: true,
-            message: "Logout Successfully"
-         })
-        
-    } catch (error) {
-      console.log(error)
-        res.status(error.status || 500).json({error:error.message || "Internal server error" })
-
-      
-        
     }
 }
 
 
+//logout
+const logout = async (req, res, next) => {
+    try {
+        res.clearCookie("token")
+        res.status(200).json({
+            success: true,
+            message: "Logout Successfully"
+        })
+
+    } catch (error) {
+        console.log(error)
+        res.status(error.status || 500).json({ error: error.message || "Internal server error" })
 
 
-module.exports = { register,login,profile,logout,update }
+
+    }
+}
+
+
+module.exports = { register, login, profile, logout, update }

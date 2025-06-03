@@ -13,11 +13,17 @@ app.get('/', (req, res) => {
 })
 
 app.use(express.json())
+
 app.use(cookieParser())
 app.use('/api',router)
 app.use('/api/admin',require('./routes/adminRoutes'))
-app.use('/api/seller',require('./routes/sellerRoutes'))
 
+app.use('/api/seller',require('./routes/sellerRoutes'))
+app.use('/api/cart',require('./routes/cartRoutes'));
+
+app.use('/api/review',require('./routes/reviewRoutes'))
+
+app.use('/api', router)
 
 connectDB()
 app.listen(port, () => {

@@ -1,4 +1,5 @@
 const User = require('../models/userModel')
+const Product = require('../models/productModel');
 const bcrypt = require('bcrypt')
 const createToken = require('../utils/generateToken');
 
@@ -7,7 +8,7 @@ const adminLogin = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        const admin = await user.findOne({ email })
+        const admin = await User.findOne({ email })
 
         if (!admin || admin.role !== 'admin') {
             return res.status(401).json({ error: "Admin not found" })
@@ -22,7 +23,7 @@ const adminLogin = async (req, res) => {
 
         const token = createToken(admin._id, admin.role);
         const adminObject = admin.toObject();
-        delete adminObject.password; // Remove password from the response
+        delete adminObject.password; 
 
         res.status(200).json({message: "Admin login successful",
             adminObject,
@@ -64,6 +65,44 @@ const adminLogout = async (req, res) =>{
   }
 };
 
+//get all users
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select('-password'); 
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+};
 
 
-module.exports = { adminLogin, adminLogout,deleteUser};
+//Get Products
+const getAllProducts = async (req, res) => {
+  try {
+    const products = await Product.find().populate('sellerId', 'name email');
+    res.status(200).json(products);
+  } catch (error) {
+    console.error("Error fetching products:", error.message);
+    res.status(500).json({ error: 'Failed to fetch products' });
+  }
+};
+
+//delete prodcut
+const deleteProduct = async (req, res) => {
+  try {
+    const productId = req.params.id;
+
+    const deleted = await Product.findByIdAndDelete(productId);
+    if (!deleted) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    res.status(200).json({ message: 'Product deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    res.status(500).json({ error: 'Failed to delete product' });
+  }
+};
+
+
+module.exports = { adminLogin, adminLogout,deleteUser, getAllUsers,getAllProducts, deleteProduct};

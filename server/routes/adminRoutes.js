@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { adminLogin, adminLogout, deleteUser} = require('../controllers/adminController');
+const { adminLogin, adminLogout, deleteUser,getAllUsers, getAllProducts, deleteProduct} = require('../controllers/adminController');
 
 const authAdmin = require('../middlewares/authAdmin');
 
@@ -14,6 +14,12 @@ router.post('/logout', authAdmin, adminLogout);
 
 // Delete a User by ID (admin-only)
 router.delete('/user/:id', authAdmin, deleteUser);
+
+router.get('/users', authAdmin, getAllUsers)
+
+router.get('/products', authAdmin, getAllProducts)
+
+router.delete('/product/:id', authAdmin, deleteProduct)
 
 module.exports = router;
 
